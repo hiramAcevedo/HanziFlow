@@ -101,7 +101,7 @@ Los archivos estáticos se generarán en la carpeta `dist/`.
 
 ## 🏛️ Inspiración
 
-Este proyecto nace de la frustración de tener que copiar y pegar carácter por carácter en herramientas existentes para practicar escritura. Como tú mencionas, la escritura es fundamental para reconocer caracteres y diferenciarlos (como 很 vs 得).
+Las herramientas existentes para practicar escritura china obligan a trabajar carácter por carácter: copiar, pegar, animar, repetir. HanziFlow nace para resolver eso — escribir oraciones completas y navegar libremente entre caracteres y trazos. La escritura a mano es fundamental para reconocer y diferenciar caracteres similares (como 很 vs 得... o al menos a mí me parecen similares), y esta app busca hacer esa práctica lo más fluida posible.
 
 ## 📄 Licencia
 
@@ -109,13 +109,9 @@ MIT
 
 ## 🙏 Agradecimientos
 
-- [Hanzi Writer](https://hanziwriter.org/) por el increíble motor de animación
+- [Hanzi Writer](https://hanziwriter.org/) por el motor de animación de trazos
 - [Make Me A Hanzi](https://github.com/skishore/makemeahanzi) por los datos de trazos
 
 ---
 
-## 👤 Autor
-
-**Hiram Acevedo - 希拉木 **
-
-*2026*
+**Hiram Acevedo — 希拉木** · 2026
