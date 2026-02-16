@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HanziFlow ✍️
 
-## Getting Started
+Aplicación web para practicar la escritura de caracteres chinos (hanzi) con animaciones de trazos interactivas.
 
-First, run the development server:
+> **Creado por Hiram（希拉木）- Acevedo, 2026**
+
+![HanziFlow Screenshot](/HanziFlow.png)
+
+## 🎯 Características principales
+
+- **Escritura continua**: Escribe oraciones o párrafos completos, no solo carácter por carácter
+- **Visualización de trazos**: Haz clic en cualquier carácter para ver su orden de trazos
+- **Modo práctica**: Dibuja los caracteres con el ratón/tactil y recibe retroalimentación
+- **Navegación por trazos**: Avanza o retrocede trazo a trazo para estudiar el orden de escritura
+- **Control de velocidad**: Ajusta la velocidad de animación en tiempo real (1-9)
+- **Atajos de teclado completos**: Diseñado para estudiar con mano derecha en papel y mano izquierda en teclado
+- **Diseño responsive**: Funciona en móvil, tablet y escritorio
+- **Ejemplos incluidos**: Frases comunes para empezar a practicar
+
+## 🚀 Tecnologías
+
+- [Next.js 16](https://nextjs.org/) - Framework React
+- [TypeScript](https://www.typescriptlang.org/) - Tipado estático
+- [Tailwind CSS](https://tailwindcss.com/) - Estilos
+- [Hanzi Writer](https://hanziwriter.org/) - Motor de animación de trazos
+- [Framer Motion](https://www.framer.com/motion/) - Animaciones
+- [shadcn/ui](https://ui.shadcn.com/) - Componentes UI
+
+## 📦 Instalación
 
 ```bash
+# Clonar el repositorio
+git clone <repo-url>
+cd HanziWriterUI
+
+# Instalar dependencias
+npm install
+
+# Iniciar servidor de desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+La aplicación estará disponible en `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🏗️ Build para producción
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+Los archivos estáticos se generarán en la carpeta `dist/`.
 
-To learn more about Next.js, take a look at the following resources:
+## 📝 Uso
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Escribe o pega un texto en chino en el área de texto
+2. Haz clic en cualquier carácter chino del grid
+3. En el modal:
+   - **Play/Pausar**: Ver la animación de trazos con pausa y reanudación
+   - **Reproducir**: Reiniciar la animación desde el primer trazo
+   - **Practicar**: Dibuja el carácter con el ratón/dedo y recibe retroalimentación
+   - **Mostrar/Ocultar contorno**: Ver la silueta del carácter
+4. Navega entre caracteres y trazos con el teclado
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### ⌨️ Atajos de teclado
 
-## Deploy on Vercel
+| Tecla | Acción |
+|-------|--------|
+| `← →` o `A D` | Navegar entre caracteres |
+| `↓` o `S` | Siguiente trazo (añadir uno) |
+| `↑` o `W` | Trazo anterior (quitar último) |
+| `SPACE` | Play/Stop — pausa la animación y reanuda desde donde se quedó. Si estás en un trazo específico (tras usar W/S), continúa la reproducción desde ahí |
+| `R` | Reproducir desde el inicio (trazo 0) |
+| `H` | Cambiar a modo ver trazos |
+| `T` | Cambiar a modo practicar |
+| `1-9` | Ajustar velocidad de animación (1 = lento, 9 = rápido). El cambio se aplica al siguiente trazo, incluso durante la reproducción |
+| `ESC` | Cerrar modal |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> **Tip**: Los controles están pensados para estudiar con la mano derecha escribiendo en papel y la mano izquierda en el teclado (WASD + espacio).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🗺️ Roadmap
+
+### MVP (Actual)
+- ✅ Input de texto libre
+- ✅ Grid de caracteres interactivo
+- ✅ Visualización de trazos (Hanzi Writer)
+- ✅ Modo práctica de escritura (quiz)
+- ✅ Navegación entre caracteres (← → / A D)
+- ✅ Navegación por trazos (↓ S / ↑ W)
+- ✅ Play/Stop con reanudación (SPACE)
+- ✅ Reproducir desde inicio (R)
+- ✅ Switch de modo por teclado (H / T)
+- ✅ Velocidad ajustable en tiempo real (1-9)
+
+### Próximos módulos
+- [ ] **Diccionario integrado**: Definiciones, pinyin, ejemplos
+- [ ] **Flashcards SRS**: Sistema de repetición espaciada con práctica de escritura
+- [ ] **Progreso**: Guardar caracteres practicados y estadísticas
+- [ ] **Listas HSK**: Palabras organizadas por niveles
+- [ ] **Audio**: Pronunciación de caracteres
+- [ ] **Modo oscuro**: Tema dark
+
+## 🏛️ Inspiración
+
+Este proyecto nace de la frustración de tener que copiar y pegar carácter por carácter en herramientas existentes para practicar escritura. Como tú mencionas, la escritura es fundamental para reconocer caracteres y diferenciarlos (como 很 vs 得).
+
+## 📄 Licencia
+
+MIT
+
+## 🙏 Agradecimientos
+
+- [Hanzi Writer](https://hanziwriter.org/) por el increíble motor de animación
+- [Make Me A Hanzi](https://github.com/skishore/makemeahanzi) por los datos de trazos
+
+---
+
+## 👤 Autor
+
+**Hiram Acevedo - 希拉木 **
+
+*2026*
