@@ -14,6 +14,8 @@ Aplicación web para practicar la escritura de caracteres chinos (hanzi) con ani
 - **Navegación por trazos**: Avanza o retrocede trazo a trazo para estudiar el orden de escritura
 - **Control de velocidad**: Ajusta la velocidad de animación en tiempo real (1-9)
 - **Atajos de teclado completos**: Diseñado para estudiar con mano derecha en papel y mano izquierda en teclado
+- **Pinyin integrado**: Cada carácter muestra su pronunciación en pinyin con marcas de tono
+- **Diccionario CC-CEDICT**: Definiciones en inglés para cada carácter, con carga inteligente (5 000 comunes + 11 000 bajo demanda)
 - **Diseño responsive**: Funciona en móvil, tablet y escritorio
 - **Ejemplos incluidos**: Frases comunes para empezar a practicar
 
@@ -25,6 +27,8 @@ Aplicación web para practicar la escritura de caracteres chinos (hanzi) con ani
 - [Hanzi Writer](https://hanziwriter.org/) - Motor de animación de trazos
 - [Framer Motion](https://www.framer.com/motion/) - Animaciones
 - [shadcn/ui](https://ui.shadcn.com/) - Componentes UI
+- [pinyin-pro](https://pinyin-pro.cn/) - Conversión de caracteres a pinyin
+- [CC-CEDICT](https://cc-cedict.org/) - Diccionario chino-inglés (CC BY-SA 4.0)
 
 ## 📦 Instalación
 
@@ -35,6 +39,9 @@ cd HanziWriterUI
 
 # Instalar dependencias
 npm install
+
+# Generar diccionario (descarga CC-CEDICT y genera JSON)
+npm run build:dict
 
 # Iniciar servidor de desarrollo
 npm run dev
@@ -91,8 +98,10 @@ Los archivos estáticos se generarán en la carpeta `dist/`.
 - ✅ Switch de modo por teclado (H / T)
 - ✅ Velocidad ajustable en tiempo real (1-9)
 
+- ✅ Pinyin con marcas de tono (pinyin-pro)
+- ✅ Diccionario CC-CEDICT (5 000 comunes + 11 000 bajo demanda)
+
 ### Próximos módulos
-- [ ] **Diccionario integrado**: Definiciones, pinyin, ejemplos
 - [ ] **Flashcards SRS**: Sistema de repetición espaciada con práctica de escritura
 - [ ] **Progreso**: Guardar caracteres practicados y estadísticas
 - [ ] **Listas HSK**: Palabras organizadas por niveles
@@ -111,7 +120,9 @@ MIT
 
 - [Hanzi Writer](https://hanziwriter.org/) por el motor de animación de trazos
 - [Make Me A Hanzi](https://github.com/skishore/makemeahanzi) por los datos de trazos
+- [CC-CEDICT](https://cc-cedict.org/) por el diccionario chino-inglés (licencia [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/))
+- [pinyin-pro](https://pinyin-pro.cn/) por la conversión a pinyin
 
 ---
 
-**Hiram Acevedo — 希拉木** · 2026
+**Hiram Acevedo — 希拉木 · 2026**

@@ -40,6 +40,7 @@ interface HanziWriterProps {
   onComplete?: () => void;
   onStrokeIndexChange?: (index: number, total: number) => void;
   onSpeedChange?: (level: number) => void;
+  slotBelowCanvas?: React.ReactNode;
 }
 
 function getOpts(writer: HanziWriter): Record<string, unknown> {
@@ -94,6 +95,7 @@ const HanziWriterComponentInner = (
     onComplete,
     onStrokeIndexChange,
     onSpeedChange,
+    slotBelowCanvas,
   }: HanziWriterProps,
   ref: React.ForwardedRef<HanziWriterRef>,
 ) => {
@@ -359,52 +361,35 @@ const HanziWriterComponentInner = (
         className="bg-white rounded-xl shadow-inner border-2 border-zinc-100"
         style={{ width, height }}
       />
-      <div className="flex gap-2 flex-wrap justify-center">
+      {slotBelowCanvas}
+      <div className="flex gap-2 justify-center">
         <button
           onClick={handlePlayStop}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
+          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
         >
-          {isAnimating ? (
-            <>
-              <Pause className="w-4 h-4" />
-              Pausar
-            </>
-          ) : (
-            <>
-              <Play className="w-4 h-4" />
-              Play
-            </>
-          )}
+          {isAnimating ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          <span className="text-[10px] md:text-sm">{isAnimating ? "Pausar" : "Play"}</span>
         </button>
         <button
           onClick={handleReplay}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
+          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
         >
           <RotateCcw className={`w-4 h-4 ${isAnimating ? "animate-spin" : ""}`} />
-          Reproducir
+          <span className="text-[10px] md:text-sm">Replay</span>
         </button>
         <button
           onClick={handleQuiz}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded-lg transition-colors"
+          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded-lg transition-colors"
         >
           <Pencil className="w-4 h-4" />
-          Practicar
+          <span className="text-[10px] md:text-sm">Practicar</span>
         </button>
         <button
           onClick={toggleOutline}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
+          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
         >
-          {outlineVisible ? (
-            <>
-              <EyeOff className="w-4 h-4" />
-              Ocultar
-            </>
-          ) : (
-            <>
-              <Eye className="w-4 h-4" />
-              Mostrar
-            </>
-          )}
+          {outlineVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          <span className="text-[10px] md:text-sm">{outlineVisible ? "Ocultar" : "Mostrar"}</span>
         </button>
       </div>
     </div>

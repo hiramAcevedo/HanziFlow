@@ -3,12 +3,15 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HanziWriterComponent, type HanziWriterRef } from "./hanzi-writer";
-import { X, ChevronLeft, ChevronRight, Play, Pencil } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Play, Pencil, Info } from "lucide-react";
+import { getPinyin, getCharacterInfoBatch, type CharacterInfo } from "@/lib/dictionary";
 
 interface CharacterData {
   char: string;
   isChinese: boolean;
   index: number;
+  pinyin?: string;
+  definition?: string;
 }
 
 interface CharacterGridProps {
@@ -38,6 +41,7 @@ function extractCharacters(text: string): CharacterData[] {
       char,
       isChinese,
       index: isChinese ? chineseIndex++ : -1,
+      pinyin: isChinese ? getPinyin(char) : undefined,
     });
   }
 
@@ -55,8 +59,26 @@ export function CharacterGrid({ text }: CharacterGridProps) {
   const [mode, setMode] = useState<"view" | "quiz">("view");
   const [speedLevel, setSpeedLevel] = useState(5);
   const [strokeInfo, setStrokeInfo] = useState({ index: -1, total: 0 });
+  const [definitions, setDefinitions] = useState<Record<string, CharacterInfo>>({});
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const characters = extractCharacters(text);
   const writerRef = useRef<HanziWriterRef | null>(null);
+
+  // Load definitions asynchronously
+  useEffect(() => {
+    const chineseChars = characters
+      .filter((c) => c.isChinese)
+      .map((c) => c.char);
+
+    if (chineseChars.length === 0) return;
+
+    // Deduplicate
+    const unique = [...new Set(chineseChars)];
+    getCharacterInfoBatch(unique).then((info) => {
+      setDefinitions(info);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text]);
 
   const handleCharacterClick = useCallback((charData: CharacterData) => {
     if (!charData.isChinese) return;
@@ -211,12 +233,12 @@ export function CharacterGrid({ text }: CharacterGridProps) {
             transition={{ delay: idx * 0.02 }}
             onClick={() => handleCharacterClick(charData)}
             className={`
-              relative w-12 h-12 rounded-lg font-serif text-2xl flex items-center justify-center
+              relative w-12 rounded-lg font-serif flex flex-col items-center justify-center
               transition-all duration-200
               ${
                 charData.isChinese
-                  ? "bg-white hover:bg-zinc-50 shadow-sm border border-zinc-200 cursor-pointer hover:shadow-md hover:border-zinc-300 hover:scale-105"
-                  : "bg-zinc-100 text-zinc-400 cursor-default"
+                  ? "bg-white hover:bg-zinc-50 shadow-sm border border-zinc-200 cursor-pointer hover:shadow-md hover:border-zinc-300 hover:scale-105 pb-1 pt-0.5"
+                  : "bg-zinc-100 text-zinc-400 cursor-default h-12"
               }
               ${
                 selectedChar?.index === charData.index && selectedChar?.isChinese
@@ -224,9 +246,16 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                   : ""
               }
             `}
-            title={charData.isChinese ? "Click para ver trazos" : undefined}
+            title={charData.isChinese ? charData.pinyin : undefined}
           >
-            {charData.char}
+            {charData.isChinese && charData.pinyin && (
+              <span className="text-[10px] leading-tight text-zinc-400 font-sans">
+                {charData.pinyin}
+              </span>
+            )}
+            <span className={charData.isChinese ? "text-2xl leading-tight" : "text-2xl"}>
+              {charData.char}
+            </span>
           </motion.button>
         ))}
       </div>
@@ -245,14 +274,21 @@ export function CharacterGrid({ text }: CharacterGridProps) {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+              className="bg-white rounded-2xl shadow-2xl max-w-md md:max-w-2xl w-full overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-zinc-100">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl font-serif">{selectedChar.char}</span>
-                  <div className="flex gap-1">
+                  <div className="flex flex-col items-center leading-none">
+                    <span className="text-sm text-zinc-400 font-sans">
+                      {selectedChar.pinyin || ""}
+                    </span>
+                    <span className="text-3xl font-serif">{selectedChar.char}</span>
+                  </div>
+
+                  {/* Mode switch — desktop only */}
+                  <div className="hidden md:flex gap-1">
                     <button
                       onClick={() => setMode("view")}
                       className={`p-2 rounded-lg transition-colors ${
@@ -277,61 +313,154 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                     </button>
                   </div>
 
-                  {/* Speed indicator */}
+                  {/* Speed — desktop only */}
                   {mode === "view" && (
-                    <div className="flex items-center gap-1 ml-2 text-xs text-zinc-400">
+                    <div className="hidden md:flex items-center gap-1 text-xs text-zinc-400">
                       <span>Vel:</span>
                       <span className="font-mono font-bold text-zinc-600">{speedLevel}</span>
                     </div>
                   )}
                 </div>
-                <button
-                  onClick={handleClose}
-                  className="p-2 hover:bg-zinc-100 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-zinc-500" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setShowShortcuts((s) => !s)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      showShortcuts
+                        ? "bg-zinc-100 text-zinc-600"
+                        : "text-zinc-300 hover:text-zinc-500"
+                    }`}
+                    title="Atajos de teclado"
+                  >
+                    <Info className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={handleClose}
+                    className="p-2 hover:bg-zinc-100 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5 text-zinc-500" />
+                  </button>
+                </div>
               </div>
 
-              {/* Contenido */}
-              <div className="p-6 flex flex-col items-center">
-                <HanziWriterComponent
-                  ref={writerRef}
-                  key={`${selectedChar.char}-${mode}`}
-                  character={selectedChar.char}
-                  mode={mode}
-                  width={280}
-                  height={280}
-                  padding={10}
-                  speedLevel={speedLevel}
-                  onComplete={
-                    mode === "quiz"
-                      ? () => {
-                          /* TODO: feedback visual/sonoro */
-                        }
-                      : undefined
-                  }
-                  onStrokeIndexChange={handleStrokeIndexChange}
-                  onSpeedChange={setSpeedLevel}
-                />
+              {/* Keyboard shortcuts (collapsible) */}
+              <AnimatePresence>
+                {showShortcuts && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden border-b border-zinc-100"
+                  >
+                    <div className="px-4 py-3 bg-zinc-50 text-xs text-zinc-500 grid grid-cols-2 gap-x-4 gap-y-1">
+                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">← →</kbd> <kbd className="font-mono bg-white px-1 rounded border border-zinc-200">A D</kbd> Caracteres</span>
+                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">↓</kbd> <kbd className="font-mono bg-white px-1 rounded border border-zinc-200">S</kbd> +trazo</span>
+                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">↑</kbd> <kbd className="font-mono bg-white px-1 rounded border border-zinc-200">W</kbd> −trazo</span>
+                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">Space</kbd> Play/Stop</span>
+                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">R</kbd> Desde inicio</span>
+                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">H</kbd> Ver · <kbd className="font-mono bg-white px-1 rounded border border-zinc-200">T</kbd> Practicar</span>
+                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">1-9</kbd> Velocidad</span>
+                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">Esc</kbd> Cerrar</span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-                {/* Info adicional */}
-                <div className="mt-4 text-center text-xs text-zinc-400 space-y-0.5">
-                  <p className="text-sm text-zinc-500">
-                    Carácter {selectedChar.index + 1} de {totalChinese}
+              {/* Contenido: col en mobile, row en desktop */}
+              <div className="p-4 md:p-6 flex flex-col md:flex-row md:gap-6">
+                {/* Writer + counter (left on desktop) */}
+                <div className="flex flex-col items-center shrink-0">
+                  <HanziWriterComponent
+                    ref={writerRef}
+                    key={`${selectedChar.char}-${mode}`}
+                    character={selectedChar.char}
+                    mode={mode}
+                    width={280}
+                    height={280}
+                    padding={10}
+                    speedLevel={speedLevel}
+                    onComplete={
+                      mode === "quiz"
+                        ? () => {
+                            /* TODO: feedback visual/sonoro */
+                          }
+                        : undefined
+                    }
+                    onStrokeIndexChange={handleStrokeIndexChange}
+                    onSpeedChange={setSpeedLevel}
+                    slotBelowCanvas={
+                      definitions[selectedChar.char]?.definition ? (
+                        <div className="block md:hidden w-full px-3 py-2.5 bg-zinc-50 rounded-lg mt-3">
+                          <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-1">
+                            Definition
+                          </p>
+                          <p className="text-sm text-zinc-700 leading-relaxed">
+                            {definitions[selectedChar.char].definition}
+                          </p>
+                        </div>
+                      ) : undefined
+                    }
+                  />
+                  <p className="mt-2 text-sm text-zinc-400 text-center">
+                    Carácter {selectedChar.index + 1}/{totalChinese}
                     {mode === "view" && strokeInfo.total > 0 && (
-                      <span className="ml-2">
+                      <span className="ml-1">
                         · Trazo {Math.max(0, strokeInfo.index + 1)}/{strokeInfo.total}
                       </span>
                     )}
                   </p>
-                  <p>← → A D: caracteres · ↓ S: +trazo · ↑ W: −trazo</p>
-                  <p>SPACE: play/stop · R: desde 0 · H: ver · T: practicar</p>
-                  <p>1-9: velocidad · ESC: cerrar</p>
+                </div>
+
+                {/* Definition (desktop only) + mobile mode controls */}
+                <div className="flex flex-col mt-3 md:mt-0 md:min-w-0 md:flex-1 gap-3">
+                  {/* Definition — desktop only */}
+                  {definitions[selectedChar.char]?.definition && (
+                    <div className="hidden md:block px-3 py-2.5 bg-zinc-50 rounded-lg md:flex-1 md:overflow-y-auto">
+                      <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-1">
+                        Definition
+                      </p>
+                      <p className="text-sm text-zinc-700 leading-relaxed">
+                        {definitions[selectedChar.char].definition}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Mode controls — mobile only */}
+                  <div className="flex md:hidden items-center justify-center gap-2">
+                    <button
+                      onClick={() => setMode("view")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                        mode === "view"
+                          ? "bg-zinc-900 text-white"
+                          : "bg-zinc-100 text-zinc-500 hover:text-zinc-700"
+                      }`}
+                      title="Ver trazos (H)"
+                    >
+                      <Play className="w-3.5 h-3.5" />
+                      Ver
+                    </button>
+                    <button
+                      onClick={() => setMode("quiz")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                        mode === "quiz"
+                          ? "bg-zinc-900 text-white"
+                          : "bg-zinc-100 text-zinc-500 hover:text-zinc-700"
+                      }`}
+                      title="Practicar escritura (T)"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      Practicar
+                    </button>
+                    {mode === "view" && (
+                      <span className="ml-1 text-xs text-zinc-400">
+                        Vel: <span className="font-mono font-bold text-zinc-600">{speedLevel}</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Footer */}
+              {/* Footer: navigation */}
               <div className="flex items-center justify-between p-4 border-t border-zinc-100 bg-zinc-50">
                 <button
                   onClick={() => handleNavigate("prev")}

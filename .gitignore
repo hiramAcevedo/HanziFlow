@@ -21,6 +21,9 @@
 /build
 /dist
 
+# generated dictionaries (run `npm run build:dict` to regenerate)
+/public/dict/
+
 # misc
 .DS_Store
 *.pem
