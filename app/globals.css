@@ -161,15 +161,16 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d8;
+  background: var(--border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1aa;
+  background: var(--muted-foreground);
 }
 
 /* Selección de texto */
 ::selection {
-  background: rgba(24, 24, 27, 0.1);
+  background: var(--accent);
+  color: var(--accent-foreground);
 }

@@ -213,7 +213,7 @@ export function CharacterGrid({ text }: CharacterGridProps) {
 
   if (characters.length === 0) {
     return (
-      <div className="text-center text-zinc-400 py-12">
+      <div className="text-center text-muted-foreground py-12">
         Escribe algo arriba para ver los caracteres
       </div>
     );
@@ -237,19 +237,19 @@ export function CharacterGrid({ text }: CharacterGridProps) {
               transition-all duration-200
               ${
                 charData.isChinese
-                  ? "bg-white hover:bg-zinc-50 shadow-sm border border-zinc-200 cursor-pointer hover:shadow-md hover:border-zinc-300 hover:scale-105 pb-1 pt-0.5"
-                  : "bg-zinc-100 text-zinc-400 cursor-default h-12"
+                  ? "bg-card hover:bg-accent shadow-sm border border-border cursor-pointer hover:shadow-md hover:border-ring hover:scale-105 pb-1 pt-0.5"
+                  : "bg-muted text-muted-foreground cursor-default h-12"
               }
               ${
                 selectedChar?.index === charData.index && selectedChar?.isChinese
-                  ? "ring-2 ring-zinc-400 ring-offset-2"
+                  ? "ring-2 ring-ring ring-offset-2 ring-offset-background"
                   : ""
               }
             `}
             title={charData.isChinese ? charData.pinyin : undefined}
           >
             {charData.isChinese && charData.pinyin && (
-              <span className="text-[10px] leading-tight text-zinc-400 font-sans">
+              <span className="text-[10px] leading-tight text-muted-foreground font-sans">
                 {charData.pinyin}
               </span>
             )}
@@ -274,14 +274,14 @@ export function CharacterGrid({ text }: CharacterGridProps) {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-2xl max-w-md md:max-w-2xl w-full overflow-hidden"
+              className="bg-card text-card-foreground rounded-2xl shadow-2xl max-w-md md:max-w-2xl w-full overflow-hidden border border-border"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-zinc-100">
+              <div className="flex items-center justify-between p-4 border-b border-border">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-col items-center leading-none">
-                    <span className="text-sm text-zinc-400 font-sans">
+                    <span className="text-sm text-muted-foreground font-sans">
                       {selectedChar.pinyin || ""}
                     </span>
                     <span className="text-3xl font-serif">{selectedChar.char}</span>
@@ -293,8 +293,8 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                       onClick={() => setMode("view")}
                       className={`p-2 rounded-lg transition-colors ${
                         mode === "view"
-                          ? "bg-zinc-100 text-zinc-900"
-                          : "text-zinc-400 hover:text-zinc-600"
+                          ? "bg-accent text-accent-foreground"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                       title="Ver trazos (H)"
                     >
@@ -304,8 +304,8 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                       onClick={() => setMode("quiz")}
                       className={`p-2 rounded-lg transition-colors ${
                         mode === "quiz"
-                          ? "bg-zinc-100 text-zinc-900"
-                          : "text-zinc-400 hover:text-zinc-600"
+                          ? "bg-accent text-accent-foreground"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                       title="Practicar escritura (T)"
                     >
@@ -315,9 +315,9 @@ export function CharacterGrid({ text }: CharacterGridProps) {
 
                   {/* Speed — desktop only */}
                   {mode === "view" && (
-                    <div className="hidden md:flex items-center gap-1 text-xs text-zinc-400">
+                    <div className="hidden md:flex items-center gap-1 text-xs text-muted-foreground">
                       <span>Vel:</span>
-                      <span className="font-mono font-bold text-zinc-600">{speedLevel}</span>
+                      <span className="font-mono font-bold text-foreground">{speedLevel}</span>
                     </div>
                   )}
                 </div>
@@ -326,8 +326,8 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                     onClick={() => setShowShortcuts((s) => !s)}
                     className={`p-2 rounded-lg transition-colors ${
                       showShortcuts
-                        ? "bg-zinc-100 text-zinc-600"
-                        : "text-zinc-300 hover:text-zinc-500"
+                        ? "bg-accent text-accent-foreground"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                     title="Atajos de teclado"
                   >
@@ -335,9 +335,9 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                   </button>
                   <button
                     onClick={handleClose}
-                    className="p-2 hover:bg-zinc-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-accent rounded-lg transition-colors"
                   >
-                    <X className="w-5 h-5 text-zinc-500" />
+                    <X className="w-5 h-5 text-muted-foreground" />
                   </button>
                 </div>
               </div>
@@ -350,17 +350,17 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="overflow-hidden border-b border-zinc-100"
+                    className="overflow-hidden border-b border-border"
                   >
-                    <div className="px-4 py-3 bg-zinc-50 text-xs text-zinc-500 grid grid-cols-2 gap-x-4 gap-y-1">
-                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">← →</kbd> <kbd className="font-mono bg-white px-1 rounded border border-zinc-200">A D</kbd> Caracteres</span>
-                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">↓</kbd> <kbd className="font-mono bg-white px-1 rounded border border-zinc-200">S</kbd> +trazo</span>
-                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">↑</kbd> <kbd className="font-mono bg-white px-1 rounded border border-zinc-200">W</kbd> −trazo</span>
-                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">Space</kbd> Play/Stop</span>
-                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">R</kbd> Desde inicio</span>
-                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">H</kbd> Ver · <kbd className="font-mono bg-white px-1 rounded border border-zinc-200">T</kbd> Practicar</span>
-                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">1-9</kbd> Velocidad</span>
-                      <span><kbd className="font-mono bg-white px-1 rounded border border-zinc-200">Esc</kbd> Cerrar</span>
+                    <div className="px-4 py-3 bg-muted text-xs text-muted-foreground grid grid-cols-2 gap-x-4 gap-y-1">
+                      <span><kbd className="font-mono bg-card px-1 rounded border border-border">← →</kbd> <kbd className="font-mono bg-card px-1 rounded border border-border">A D</kbd> Caracteres</span>
+                      <span><kbd className="font-mono bg-card px-1 rounded border border-border">↓</kbd> <kbd className="font-mono bg-card px-1 rounded border border-border">S</kbd> +trazo</span>
+                      <span><kbd className="font-mono bg-card px-1 rounded border border-border">↑</kbd> <kbd className="font-mono bg-card px-1 rounded border border-border">W</kbd> −trazo</span>
+                      <span><kbd className="font-mono bg-card px-1 rounded border border-border">Space</kbd> Play/Stop</span>
+                      <span><kbd className="font-mono bg-card px-1 rounded border border-border">R</kbd> Desde inicio</span>
+                      <span><kbd className="font-mono bg-card px-1 rounded border border-border">H</kbd> Ver · <kbd className="font-mono bg-card px-1 rounded border border-border">T</kbd> Practicar</span>
+                      <span><kbd className="font-mono bg-card px-1 rounded border border-border">1-9</kbd> Velocidad</span>
+                      <span><kbd className="font-mono bg-card px-1 rounded border border-border">Esc</kbd> Cerrar</span>
                     </div>
                   </motion.div>
                 )}
@@ -390,18 +390,18 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                     onSpeedChange={setSpeedLevel}
                     slotBelowCanvas={
                       definitions[selectedChar.char]?.definition ? (
-                        <div className="block md:hidden w-full px-3 py-2.5 bg-zinc-50 rounded-lg mt-3">
-                          <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-1">
+                        <div className="block md:hidden w-full px-3 py-2.5 bg-muted rounded-lg mt-3">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
                             Definition
                           </p>
-                          <p className="text-sm text-zinc-700 leading-relaxed">
+                          <p className="text-sm text-foreground leading-relaxed">
                             {definitions[selectedChar.char].definition}
                           </p>
                         </div>
                       ) : undefined
                     }
                   />
-                  <p className="mt-2 text-sm text-zinc-400 text-center">
+                  <p className="mt-2 text-sm text-muted-foreground text-center">
                     Carácter {selectedChar.index + 1}/{totalChinese}
                     {mode === "view" && strokeInfo.total > 0 && (
                       <span className="ml-1">
@@ -415,11 +415,11 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                 <div className="flex flex-col mt-3 md:mt-0 md:min-w-0 md:flex-1 gap-3">
                   {/* Definition — desktop only */}
                   {definitions[selectedChar.char]?.definition && (
-                    <div className="hidden md:block px-3 py-2.5 bg-zinc-50 rounded-lg md:flex-1 md:overflow-y-auto">
-                      <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-1">
+                    <div className="hidden md:block px-3 py-2.5 bg-muted rounded-lg md:flex-1 md:overflow-y-auto">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
                         Definition
                       </p>
-                      <p className="text-sm text-zinc-700 leading-relaxed">
+                      <p className="text-sm text-foreground leading-relaxed">
                         {definitions[selectedChar.char].definition}
                       </p>
                     </div>
@@ -431,8 +431,8 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                       onClick={() => setMode("view")}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
                         mode === "view"
-                          ? "bg-zinc-900 text-white"
-                          : "bg-zinc-100 text-zinc-500 hover:text-zinc-700"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:text-foreground"
                       }`}
                       title="Ver trazos (H)"
                     >
@@ -443,8 +443,8 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                       onClick={() => setMode("quiz")}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
                         mode === "quiz"
-                          ? "bg-zinc-900 text-white"
-                          : "bg-zinc-100 text-zinc-500 hover:text-zinc-700"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:text-foreground"
                       }`}
                       title="Practicar escritura (T)"
                     >
@@ -452,8 +452,8 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                       Practicar
                     </button>
                     {mode === "view" && (
-                      <span className="ml-1 text-xs text-zinc-400">
-                        Vel: <span className="font-mono font-bold text-zinc-600">{speedLevel}</span>
+                      <span className="ml-1 text-xs text-muted-foreground">
+                        Vel: <span className="font-mono font-bold text-foreground">{speedLevel}</span>
                       </span>
                     )}
                   </div>
@@ -461,10 +461,10 @@ export function CharacterGrid({ text }: CharacterGridProps) {
               </div>
 
               {/* Footer: navigation */}
-              <div className="flex items-center justify-between p-4 border-t border-zinc-100 bg-zinc-50">
+              <div className="flex items-center justify-between p-4 border-t border-border bg-muted">
                 <button
                   onClick={() => handleNavigate("prev")}
-                  className="flex items-center gap-1 px-3 py-2 text-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 rounded-lg transition-colors"
+                  className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors"
                   disabled={selectedChar.index === 0}
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -472,7 +472,7 @@ export function CharacterGrid({ text }: CharacterGridProps) {
                 </button>
                 <button
                   onClick={() => handleNavigate("next")}
-                  className="flex items-center gap-1 px-3 py-2 text-sm text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 rounded-lg transition-colors"
+                  className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg transition-colors"
                   disabled={selectedChar.index === totalChinese - 1}
                 >
                   Siguiente
