@@ -1,4 +1,7 @@
-import type { Folder, Session, SessionWithEntries, Entry, ChatMessage } from "./types";
+import type {
+  Folder, Session, SessionWithEntries, Entry, ChatMessage,
+  HskVocab, HskLevelSummary, HskVocabDetail, Vault, VaultEntry,
+} from "./types";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -102,4 +105,64 @@ export const api = {
 
   // Health
   health: () => request<{ status: string; ollama: boolean }>("/api/health"),
+
+  // HSK Vocabulary
+  hskLevels: () => request<HskLevelSummary[]>("/api/hsk/levels"),
+
+  hskVocabulary: (params: { version?: string; level?: number; offset?: number; limit?: number }) => {
+    const qs = new URLSearchParams();
+    if (params.version) qs.set("version", params.version);
+    if (params.level != null) qs.set("level", String(params.level));
+    if (params.offset != null) qs.set("offset", String(params.offset));
+    if (params.limit != null) qs.set("limit", String(params.limit));
+    const q = qs.toString();
+    return request<HskVocab[]>(`/api/hsk/vocabulary${q ? `?${q}` : ""}`);
+  },
+
+  hskVocabDetail: (simplified: string) =>
+    request<HskVocabDetail>(`/api/hsk/vocabulary/${encodeURIComponent(simplified)}`),
+
+  hskMarkSeen: (simplified: string) =>
+    request<{ ok: boolean }>(`/api/hsk/vocabulary/${encodeURIComponent(simplified)}/seen`, { method: "POST" }),
+
+  hskUpdateNotes: (simplified: string, notes: string) =>
+    request<{ ok: boolean }>(`/api/hsk/vocabulary/${encodeURIComponent(simplified)}/notes`, {
+      method: "PUT",
+      body: JSON.stringify({ notes }),
+    }),
+
+  hskResetProgress: () =>
+    request<{ ok: boolean }>("/api/hsk/progress", { method: "DELETE" }),
+
+  hskSearch: (q: string, limit?: number) => {
+    const qs = new URLSearchParams({ q });
+    if (limit != null) qs.set("limit", String(limit));
+    return request<HskVocab[]>(`/api/hsk/search?${qs}`);
+  },
+
+  // Vaults
+  listVaults: () => request<Vault[]>("/api/vaults"),
+
+  createVault: (data: { name: string; description?: string; color?: string }) =>
+    request<Vault>("/api/vaults", { method: "POST", body: JSON.stringify(data) }),
+
+  updateVault: (id: number, data: { name?: string; description?: string; color?: string }) =>
+    request<Vault>(`/api/vaults/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+
+  deleteVault: (id: number) =>
+    request<{ ok: boolean }>(`/api/vaults/${id}`, { method: "DELETE" }),
+
+  vaultEntries: (vaultId: number) =>
+    request<VaultEntry[]>(`/api/vaults/${vaultId}/entries`),
+
+  addToVault: (vaultId: number, simplified: string) =>
+    request<VaultEntry>(`/api/vaults/${vaultId}/entries`, {
+      method: "POST",
+      body: JSON.stringify({ simplified }),
+    }),
+
+  removeFromVault: (vaultId: number, simplified: string) =>
+    request<{ ok: boolean }>(`/api/vaults/${vaultId}/entries/${encodeURIComponent(simplified)}`, {
+      method: "DELETE",
+    }),
 };

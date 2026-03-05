@@ -40,6 +40,8 @@ import {
   Trash2,
   PencilLine,
   FolderInput,
+  BookOpen,
+  Package,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { onRefresh } from "@/lib/events";
@@ -47,7 +49,7 @@ import { connectCapture } from "@/lib/ws";
 import { PromptDialog } from "@/components/shared/prompt-dialog";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { PickerDialog } from "@/components/shared/picker-dialog";
-import type { Folder, Session } from "@/lib/types";
+import type { Folder, Session, Vault } from "@/lib/types";
 
 type ModalState =
   | { type: "none" }
@@ -57,7 +59,9 @@ type ModalState =
   | { type: "renameSession"; session: Session }
   | { type: "deleteFolder"; folder: Folder }
   | { type: "deleteSession"; session: Session }
-  | { type: "moveSession"; session: Session };
+  | { type: "moveSession"; session: Session }
+  | { type: "createVault" }
+  | { type: "deleteVault"; vault: Vault };
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -65,18 +69,21 @@ export function AppSidebar() {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [limboCount, setLimboCount] = useState(0);
+  const [vaultsData, setVaultsData] = useState<Vault[]>([]);
   const [modal, setModal] = useState<ModalState>({ type: "none" });
 
   const loadData = useCallback(async () => {
     try {
-      const [f, s, limbo] = await Promise.all([
+      const [f, s, limbo, v] = await Promise.all([
         api.listFolders(),
         api.listSessions(),
         api.listEntries({ limbo: true }),
+        api.listVaults().catch(() => [] as Vault[]),
       ]);
       setFolders(f);
       setSessions(s);
       setLimboCount(limbo.length);
+      setVaultsData(v);
     } catch {
       // Server not available — limbo mode
     }
@@ -170,6 +177,23 @@ export function AppSidebar() {
     } catch { /* silent */ }
   };
 
+  const handleCreateVault = async (name: string) => {
+    try {
+      await api.createVault({ name });
+      loadData();
+    } catch { /* silent */ }
+  };
+
+  const handleDeleteVault = async (vaultId: number) => {
+    try {
+      await api.deleteVault(vaultId);
+      loadData();
+      if (pathname === `/vault/${vaultId}`) {
+        router.push("/hsk");
+      }
+    } catch { /* silent */ }
+  };
+
   const closeModal = () => setModal({ type: "none" });
   const isModalOpen = modal.type !== "none";
 
@@ -202,6 +226,14 @@ export function AppSidebar() {
                 <Link href="/writer">
                   <Pencil className="w-4 h-4" />
                   <span>Practicar trazos</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={pathname.startsWith("/hsk")}>
+                <Link href="/hsk">
+                  <BookOpen className="w-4 h-4" />
+                  <span>HSK Vocabulario</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -402,6 +434,68 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Vaults */}
+        <SidebarSeparator />
+        <SidebarGroup>
+          <SidebarGroupLabel>Baúles léxicos</SidebarGroupLabel>
+          <SidebarGroupAction onClick={() => setModal({ type: "createVault" })} title="Nuevo baúl">
+            <Plus className="w-4 h-4" />
+          </SidebarGroupAction>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {vaultsData.map((vault) => (
+                <SidebarMenuItem key={vault.id} className="group/vault relative">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === `/vault/${vault.id}`}
+                  >
+                    <Link href={`/vault/${vault.id}`}>
+                      <div
+                        className="w-3 h-3 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: vault.color }}
+                      />
+                      <span className="truncate">{vault.name}</span>
+                      {vault.entry_count > 0 && (
+                        <span className="ml-auto text-xs text-muted-foreground">
+                          {vault.entry_count}
+                        </span>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="absolute right-1 top-1.5 p-1 rounded-md opacity-0 group-hover/vault:opacity-100 hover:bg-accent transition-opacity">
+                        <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent side="right" align="start">
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => setModal({ type: "deleteVault", vault })}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Eliminar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </SidebarMenuItem>
+              ))}
+              {vaultsData.length === 0 && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    className="text-muted-foreground cursor-pointer"
+                    onClick={() => setModal({ type: "createVault" })}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Crear baúl</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>
@@ -483,6 +577,30 @@ export function AppSidebar() {
         }
         onConfirm={() => {
           if (modal.type === "deleteSession") handleDeleteSession(modal.session.id);
+        }}
+      />
+
+      {/* Create vault */}
+      <PromptDialog
+        open={modal.type === "createVault"}
+        onOpenChange={(open) => !open && closeModal()}
+        title="Nuevo baúl léxico"
+        placeholder="Nombre del baúl"
+        onSubmit={handleCreateVault}
+      />
+
+      {/* Delete vault */}
+      <ConfirmDialog
+        open={modal.type === "deleteVault"}
+        onOpenChange={(open) => !open && closeModal()}
+        title="Eliminar baúl"
+        description={
+          modal.type === "deleteVault"
+            ? `Se eliminara el baúl "${modal.vault.name}" y todas sus entradas. Esta accion no se puede deshacer.`
+            : ""
+        }
+        onConfirm={() => {
+          if (modal.type === "deleteVault") handleDeleteVault(modal.vault.id);
         }}
       />
 

@@ -77,6 +77,18 @@ function hideStrokeInstant(writer: HanziWriter, strokeIndex: number) {
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+function useIsDark() {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const el = document.documentElement;
+    setDark(el.classList.contains("dark"));
+    const obs = new MutationObserver(() => setDark(el.classList.contains("dark")));
+    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
+}
+
 const HanziWriterComponentInner = (
   {
     character,
@@ -85,10 +97,10 @@ const HanziWriterComponentInner = (
     height = 150,
     padding = 5,
     speedLevel = 5,
-    strokeColor = "#333",
-    highlightColor = "#4f46e5",
-    outlineColor = "#ddd",
-    drawingColor = "#333",
+    strokeColor: strokeColorProp,
+    highlightColor: highlightColorProp,
+    outlineColor: outlineColorProp,
+    drawingColor: drawingColorProp,
     showOutline = true,
     showHintAfterMisses = 3,
     highlightOnComplete = true,
@@ -99,6 +111,12 @@ const HanziWriterComponentInner = (
   }: HanziWriterProps,
   ref: React.ForwardedRef<HanziWriterRef>,
 ) => {
+  const isDark = useIsDark();
+  const strokeColor = strokeColorProp ?? (isDark ? "#e4e4e7" : "#333");
+  const highlightColor = highlightColorProp ?? (isDark ? "#818cf8" : "#4f46e5");
+  const outlineColor = outlineColorProp ?? (isDark ? "#3f3f46" : "#ddd");
+  const drawingColor = drawingColorProp ?? (isDark ? "#e4e4e7" : "#333");
+
   const containerRef = useRef<HTMLDivElement>(null);
   const writerRef = useRef<HanziWriter | null>(null);
   const [outlineVisible, setOutlineVisible] = useState(showOutline);
@@ -335,7 +353,7 @@ const HanziWriterComponentInner = (
       if (containerRef.current) containerRef.current.innerHTML = "";
       writerRef.current = null;
     };
-  }, [character, mode]);
+  }, [character, mode, isDark]);
 
   // --- UI handlers ---
 
@@ -358,35 +376,35 @@ const HanziWriterComponentInner = (
     <div className="flex flex-col items-center gap-4">
       <div
         ref={containerRef}
-        className="bg-white rounded-xl shadow-inner border-2 border-zinc-100"
+        className="bg-background rounded-xl shadow-inner border-2 border-border"
         style={{ width, height }}
       />
       {slotBelowCanvas}
       <div className="flex gap-2 justify-center">
         <button
           onClick={handlePlayStop}
-          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
+          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-muted hover:bg-accent rounded-lg transition-colors"
         >
           {isAnimating ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           <span className="text-[10px] md:text-sm">{isAnimating ? "Pausar" : "Play"}</span>
         </button>
         <button
           onClick={handleReplay}
-          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
+          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-muted hover:bg-accent rounded-lg transition-colors"
         >
           <RotateCcw className={`w-4 h-4 ${isAnimating ? "animate-spin" : ""}`} />
           <span className="text-[10px] md:text-sm">Replay</span>
         </button>
         <button
           onClick={handleQuiz}
-          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded-lg transition-colors"
+          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors"
         >
           <Pencil className="w-4 h-4" />
           <span className="text-[10px] md:text-sm">Practicar</span>
         </button>
         <button
           onClick={toggleOutline}
-          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
+          className="flex flex-col md:flex-row items-center gap-0.5 md:gap-1.5 px-3 py-1.5 md:py-2 text-sm font-medium bg-muted hover:bg-accent rounded-lg transition-colors"
         >
           {outlineVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           <span className="text-[10px] md:text-sm">{outlineVisible ? "Ocultar" : "Mostrar"}</span>
